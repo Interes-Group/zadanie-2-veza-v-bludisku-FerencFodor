@@ -76,7 +76,7 @@ public class Cell {
 
     @Deprecated
     public void show(Graphics g) {
-        var size = Window.CANVAS_WIDTH/CELL_SIZE;
+        var size = Window.CANVAS_WIDTH / CELL_SIZE;
         var i = this.x * size;
         var j = this.y * size;
 

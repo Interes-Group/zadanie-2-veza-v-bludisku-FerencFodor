@@ -1,11 +1,7 @@
 package sk.stuba.fei.uim.oop;
 
-import javafx.scene.layout.BorderStroke;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Window extends JFrame {
     public static final int CANVAS_WIDTH = 600;
