@@ -29,8 +29,6 @@ public class Window extends JFrame {
         controlPanel = new JPanel();
         controlPanel.setPreferredSize(new Dimension(100, CANVAS_HEIGHT));
 
-
-
         JButton reset = new JButton("RESET");
         reset.setFocusable(false);
         controlPanel.add(reset, BorderLayout.SOUTH);
