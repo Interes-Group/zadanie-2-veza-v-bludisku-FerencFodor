@@ -1,5 +1,6 @@
 package sk.stuba.fei.uim.oop;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ enum Direction {
 }
 
 public class Cell {
+    public static final int CELL_SIZE = 15;
 
     private int x;
     private int y;
@@ -64,11 +66,26 @@ public class Cell {
         this.walls = walls;
     }
 
-    public boolean getWall(Direction direction){
+    public boolean getWall(Direction direction) {
         return this.walls.get(direction.value);
     }
 
-    public void setWall(Direction direction, boolean value){
+    public void setWall(Direction direction, boolean value) {
         this.walls.set(direction.value, value);
+    }
+
+    @Deprecated
+    public void show(Graphics g) {
+        var size = Window.CANVAS_WIDTH/CELL_SIZE;
+        var i = this.x * size;
+        var j = this.y * size;
+
+        g.setColor(Color.white);
+        g.fillRect(i, j, size, size);
+        g.setColor(Color.black);
+        if (walls.get(0)) g.drawLine(i, j, i + size, j);
+        if (walls.get(1)) g.drawLine(i + size, j, i + size, j + size);
+        if (walls.get(2)) g.drawLine(i + size, j + size, i, j + size);
+        if (walls.get(3)) g.drawLine(i, j + size, i, j);
     }
 }
