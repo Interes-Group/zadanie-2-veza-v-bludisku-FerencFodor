@@ -5,15 +5,12 @@ import java.util.*;
 public class Maze {
 
     private int size;
-    private boolean isMazeGenerated;
 
     private Random random;
-
     private List<Cell> grid;
 
     public Maze() {
         this.size = Cell.CELL_SIZE;
-        this.isMazeGenerated = false;
         this.random = new Random();
         this.grid = new ArrayList<>();
         initGrid();
@@ -26,16 +23,10 @@ public class Maze {
     }
 
     public void reset() {
-        if (size * size != grid.size()) {
-            grid.clear();
-            initGrid();
-            return;
-        }
-
-        for (var cell : grid) {
-            cell.setVisited(false);
+        grid.forEach(cell -> {
             cell.setWalls(Arrays.asList(true, true, true, true));
-        }
+            cell.setVisited(false);
+        });
     }
 
     public void generateMaze() {
@@ -111,14 +102,6 @@ public class Maze {
             current.setWall(Direction.Down, false);
             next.setWall(Direction.Up, false);
         }
-    }
-
-    public boolean isMazeGenerated() {
-        return isMazeGenerated;
-    }
-
-    public void setMazeGenerated(boolean mazeGenerated) {
-        isMazeGenerated = mazeGenerated;
     }
 
     public List<Cell> getGrid() {
