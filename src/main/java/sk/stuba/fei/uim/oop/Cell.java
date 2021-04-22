@@ -74,7 +74,6 @@ public class Cell {
         this.walls.set(direction.value, value);
     }
 
-    @Deprecated
     public void show(Graphics g) {
         var size = Window.CANVAS_WIDTH / CELL_SIZE;
         var i = this.x * size;

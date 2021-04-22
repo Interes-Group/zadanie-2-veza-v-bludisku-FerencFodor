@@ -9,11 +9,19 @@ public class Maze {
     private Random random;
     private List<Cell> grid;
 
+    private int[] finishPos;
+    private int[] playerPos;
+
     public Maze() {
         this.size = Cell.CELL_SIZE;
         this.random = new Random();
         this.grid = new ArrayList<>();
+        this.finishPos = new int[]{Cell.CELL_SIZE - 1, Cell.CELL_SIZE - 1};
+        this.playerPos = new int[]{0, 0};
+
         initGrid();
+        setFinish();
+        setPlayer();
     }
 
     public void initGrid() {
@@ -22,11 +30,22 @@ public class Maze {
                 grid.add(new Cell(j, i));
     }
 
+    public void setFinish() {
+        finishPos[1] = random.nextInt(Cell.CELL_SIZE);
+    }
+
+    public void setPlayer() {
+        playerPos[1] = random.nextInt(Cell.CELL_SIZE);
+    }
+
     public void reset() {
         grid.forEach(cell -> {
             cell.setWalls(Arrays.asList(true, true, true, true));
             cell.setVisited(false);
         });
+
+        setFinish();
+        setPlayer();
     }
 
     public void generateMaze() {
@@ -110,5 +129,21 @@ public class Maze {
 
     public void setGrid(List<Cell> grid) {
         this.grid = grid;
+    }
+
+    public int[] getFinishPos() {
+        return finishPos;
+    }
+
+    public void setFinishPos(int[] finishPos) {
+        this.finishPos = finishPos;
+    }
+
+    public int[] getPlayerPos() {
+        return playerPos;
+    }
+
+    public void setPlayerPos(int[] playerPos) {
+        this.playerPos = playerPos;
     }
 }

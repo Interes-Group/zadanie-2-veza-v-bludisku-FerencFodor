@@ -1,18 +1,23 @@
 package sk.stuba.fei.uim.oop;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+
 
 public class Player extends JPanel implements ActionListener {
 
     private int x;
     private int y;
     private Maze maze;
+    private boolean isFinish;
 
-    public Player(int x, int y, Maze maze) {
-        this.x = x;
-        this.y = y;
+    public Player(Maze maze) {
+        this.x = 0;
+        this.y = 0;
         this.maze = maze;
+        this.isFinish = false;
     }
 
     public int getPX() {
@@ -31,19 +36,27 @@ public class Player extends JPanel implements ActionListener {
         this.y = y;
     }
 
-    public void moveUp(){
+    public boolean isFinish() {
+        return isFinish;
+    }
+
+    public void setFinish(boolean finish) {
+        isFinish = finish;
+    }
+
+    public void moveUp() {
         move(Direction.Up, 0, -1);
     }
 
     public void moveRight() {
-        move(Direction.Right,1, 0);
+        move(Direction.Right, 1, 0);
     }
 
-    public void moveDown(){
-        move(Direction.Down, 0,1);
+    public void moveDown() {
+        move(Direction.Down, 0, 1);
     }
 
-    public void moveLeft(){
+    public void moveLeft() {
         move(Direction.Left, -1, 0);
     }
 
@@ -51,12 +64,19 @@ public class Player extends JPanel implements ActionListener {
         var grid = maze.getGrid();
         var cell = grid.get(this.y * Cell.CELL_SIZE + this.x);
 
-        if(!cell.getWall(direction)){
+        if (!cell.getWall(direction)) {
             this.x = this.x + x;
-            this.y = this.y +y;
+            this.y = this.y + y;
         }
 
-        System.out.println(this.x + " " + this.y);
+        checkFinish();
+    }
+
+    public void checkFinish() {
+        var pos = new int[]{this.x, this.y};
+        if (Arrays.equals(maze.getFinishPos(), pos)) {
+            isFinish = true;
+        }
     }
 
     @Override
