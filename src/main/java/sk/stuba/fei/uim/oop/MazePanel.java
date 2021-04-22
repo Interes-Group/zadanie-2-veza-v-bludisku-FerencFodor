@@ -17,7 +17,7 @@ public class MazePanel extends JPanel {
         this.player = player;
         this.step = Window.CANVAS_WIDTH / Cell.CELL_SIZE;
 
-        guidePoint = new Point();
+        this.guidePoint = new Point();
         this.grid = maze.getGrid();
 
     }
@@ -56,5 +56,6 @@ public class MazePanel extends JPanel {
 
     public void setGuidePoint(Point guidePoint) {
         this.guidePoint = guidePoint;
+
     }
 }

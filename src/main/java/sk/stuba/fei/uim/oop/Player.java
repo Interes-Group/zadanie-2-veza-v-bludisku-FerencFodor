@@ -1,12 +1,10 @@
 package sk.stuba.fei.uim.oop;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 
-public class Player extends JPanel implements ActionListener {
+public class Player extends JPanel {
 
     private int x;
     private int y;
@@ -77,10 +75,5 @@ public class Player extends JPanel implements ActionListener {
         if (Arrays.equals(maze.getFinishPos(), pos)) {
             isFinish = true;
         }
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        repaint();
     }
 }

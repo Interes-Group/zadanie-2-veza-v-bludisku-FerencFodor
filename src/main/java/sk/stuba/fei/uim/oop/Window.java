@@ -2,8 +2,6 @@ package sk.stuba.fei.uim.oop;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
 
 public class Window extends JFrame {
     public static final int CANVAS_WIDTH = 600;
@@ -27,13 +25,11 @@ public class Window extends JFrame {
         maze = new Maze();
         player = new Player(maze);
 
-        cml = new CustomMouseListener(this);
-        addMouseListener(cml);
-
         winCounter = 0;
         winCounterLabel = "Completed: ";
 
         maze.generateMaze();
+
         initCanvas();
         initControlPanel();
 
@@ -58,13 +54,15 @@ public class Window extends JFrame {
         cp.add(controlPanel, gc);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setResizable(false);
         this.pack();
         this.setVisible(true);
-
     }
 
     @Override
-    public void repaint() {
+    public void repaint()
+    {
+        fix();
         super.repaint();
         if (player.isFinish()) {
             player.setFinish(false);
@@ -79,6 +77,7 @@ public class Window extends JFrame {
         maze.generateMaze();
         player.setX(maze.getPlayerPos()[0]);
         player.setY(maze.getPlayerPos()[1]);
+        fix();
         repaint();
     }
 
@@ -87,7 +86,10 @@ public class Window extends JFrame {
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         canvas.setFocusable(true);
-        canvas.addKeyListener(new PlayerInput());
+        canvas.addKeyListener(new PlayerInput(this));
+
+        cml = new CustomMouseListener(this);
+
         canvas.addMouseMotionListener(cml);
         canvas.addMouseListener(cml);
     }
@@ -101,16 +103,17 @@ public class Window extends JFrame {
         JButton buttonRight = new JButton("RIGHT");
         JButton buttonDown = new JButton("DOWN");
         JButton buttonLeft = new JButton("LEFT");
-        JButton reset = new JButton("RESET");
+        JButton buttonReset = new JButton("RESET");
 
         labelWin.setFocusable(false);
+
         buttonUp.setFocusable(false);
         buttonRight.setFocusable(false);
         buttonDown.setFocusable(false);
         buttonLeft.setFocusable(false);
-        reset.setFocusable(false);
+        buttonReset.setFocusable(false);
 
-        reset.addActionListener(ae -> {
+        buttonReset.addActionListener(ae -> {
             winCounter = 0;
             labelWin.setText(winCounterLabel + winCounter);
             reset();
@@ -149,7 +152,7 @@ public class Window extends JFrame {
 
         gc.gridx = 2;
         gc.gridy = 0;
-        controlPanel.add(reset, gc);
+        controlPanel.add(buttonReset, gc);
 
         gc.gridx = 1;
         gc.gridy = 1;
@@ -168,125 +171,29 @@ public class Window extends JFrame {
         controlPanel.add(buttonRight, gc);
     }
 
-
-    public class PlayerInput extends KeyAdapter {
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyChar() == 'w') player.moveUp();
-            if (e.getKeyChar() == 'a') player.moveLeft();
-            if (e.getKeyChar() == 's') player.moveDown();
-            if (e.getKeyChar() == 'd') player.moveRight();
-
-            repaint();
-        }
+    public void fix() {
+        cml.setMousePointer(new Point(player.getPX(), player.getPY()));
+        canvas.setGuidePoint(cml.getMousePointer());
     }
 
-    public class CustomMouseListener implements MouseMotionListener, MouseListener {
+    public Player getPlayer() {
+        return player;
+    }
 
-        public Point mousePointer;
-        private int step;
-        private List<Cell> grid;
-        private Window window;
+    public Maze getMaze() {
+        return maze;
+    }
 
-        public CustomMouseListener(Window window) {
-            this.mousePointer = new Point();
-            this.step = CANVAS_WIDTH / Cell.CELL_SIZE;
-            grid = maze.getGrid();
-            this.window = window;
-        }
+    public MazePanel getCanvas() {
+        return canvas;
+    }
 
-        @Override
-        public void mouseMoved(MouseEvent mouseEvent) {
-            var point = mouseEvent.getPoint();
+    public CustomMouseListener getCml() {
+        return cml;
+    }
 
-            mousePointer.x = point.x % step == 0 ? point.x / step : (point.x - (point.x % step)) / step;
-            mousePointer.y = point.y % step == 0 ? point.y / step : (point.y - (point.y % step)) / step;
-
-            var xDif = Math.abs(mousePointer.x - player.getPX());
-            var yDif = Math.abs(mousePointer.y - player.getPY());
-
-            if (xDif >= yDif) {
-                mousePointer.y = player.getPY();
-
-                for (int i = 0; i < xDif; i++) {
-                    var xPos = player.getPX() > mousePointer.x ? player.getPX() - i : player.getPX() + i;
-                    var isWall = grid.get(getPos(xPos, player.getPY())).getWall(getDirection(mousePointer, xPos, mousePointer.y));
-
-                    if (isWall) {
-                        mousePointer.x = xPos;
-                        break;
-                    }
-                }
-            }
-
-            if (xDif <= yDif) {
-                mousePointer.x = player.getPX();
-
-                for (int i = 0; i < yDif; i++) {
-                    var yPos = player.getPY() > mousePointer.y ? player.getPY() - i : player.getPY() + i;
-                    var isWall = grid.get(getPos(player.getPX(), yPos)).getWall(getDirection(mousePointer, mousePointer.x, yPos));
-
-                    if (isWall) {
-                        mousePointer.y = yPos;
-                        break;
-                    }
-                }
-            }
-
-            canvas.setGuidePoint(mousePointer);
-            canvas.repaint();
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
-            player.setX(mousePointer.x);
-            player.setY(mousePointer.y);
-            player.checkFinish();
-            window.repaint();
-        }
-
-        private int getPos(int x, int y) {
-            return y * Cell.CELL_SIZE + x;
-        }
-
-        private int getPos() {
-            return player.getPY() * Cell.CELL_SIZE + player.getPX();
-        }
-
-        private Direction getDirection(Point mouse, int x, int y) {
-            if (mouse.y > y) return Direction.Down;
-            if (mouse.y < y) return Direction.Up;
-            if (mouse.x > x) return Direction.Right;
-            if (mouse.x < x) return Direction.Left;
-            return Direction.Up;
-        }
-
-        //<editor-fold desc="Unused">
-        @Override
-        public void mouseDragged(MouseEvent mouseEvent) {
-
-        }
-
-        @Override
-        public void mousePressed(MouseEvent mouseEvent) {
-
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent mouseEvent) {
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent mouseEvent) {
-
-        }
-
-        @Override
-        public void mouseExited(MouseEvent mouseEvent) {
-
-        }
-        //</editor-fold>
+    public void setCml(CustomMouseListener cml) {
+        this.cml = cml;
     }
 }
 

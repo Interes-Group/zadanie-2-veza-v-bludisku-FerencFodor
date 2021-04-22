@@ -35,6 +35,7 @@ public class Maze {
     }
 
     public void setPlayer() {
+
         playerPos[1] = random.nextInt(Cell.CELL_SIZE);
     }
 
