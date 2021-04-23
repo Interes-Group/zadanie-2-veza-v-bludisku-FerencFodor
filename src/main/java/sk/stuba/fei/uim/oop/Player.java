@@ -6,9 +6,9 @@ import java.util.Arrays;
 
 public class Player extends JPanel {
 
+    private final Maze maze;
     private int x;
     private int y;
-    private Maze maze;
     private boolean isFinish;
 
     public Player(Maze maze) {
@@ -18,30 +18,7 @@ public class Player extends JPanel {
         this.isFinish = false;
     }
 
-    public int getPX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getPY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public boolean isFinish() {
-        return isFinish;
-    }
-
-    public void setFinish(boolean finish) {
-        isFinish = finish;
-    }
-
+    //Movement
     public void moveUp() {
         move(Direction.Up, 0, -1);
     }
@@ -60,7 +37,7 @@ public class Player extends JPanel {
 
     private void move(Direction direction, int x, int y) {
         var grid = maze.getGrid();
-        var cell = grid.get(this.y * Cell.CELL_SIZE + this.x);
+        var cell = grid.get(this.y * Cell.CELL_COUNT + this.x);
 
         if (!cell.getWall(direction)) {
             this.x = this.x + x;
@@ -70,10 +47,36 @@ public class Player extends JPanel {
         checkFinish();
     }
 
+    //Win condition check
     public void checkFinish() {
         var pos = new int[]{this.x, this.y};
         if (Arrays.equals(maze.getFinishPos(), pos)) {
             isFinish = true;
         }
+    }
+
+    //Getters & Setters
+    public boolean isFinish() {
+        return isFinish;
+    }
+
+    public void setFinish(boolean finish) {
+        isFinish = finish;
+    }
+
+    public int getPX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getPY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 }

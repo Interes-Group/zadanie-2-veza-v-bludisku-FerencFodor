@@ -7,17 +7,18 @@ public class Window extends JFrame {
     public static final int CANVAS_WIDTH = 600;
     public static final int CANVAS_HEIGHT = 600;
 
+    private final Maze maze;
+    private final Player player;
+
     private MazePanel canvas;
-    private Maze maze;
-    private Player player;
-
-    private String winCounterLabel;
-    private int winCounter;
-    private JLabel labelWin;
-
     private JPanel controlPanel;
-    private CustomMouseListener cml;
+    private JPanel guidePanel;
 
+    private JLabel winCounterLabel;
+    private final String winCounterString;
+    private int winCounterNumber;
+
+    private CustomMouseListener cml;
 
     public Window() {
         super();
@@ -25,14 +26,53 @@ public class Window extends JFrame {
         maze = new Maze();
         player = new Player(maze);
 
-        winCounter = 0;
-        winCounterLabel = "Completed: ";
+        winCounterNumber = 0;
+        winCounterString = "Completed: ";
 
         maze.generateMaze();
 
         initCanvas();
         initControlPanel();
+        initGuide();
+        initWindow();
+    }
 
+    //Misc
+    @Override
+    public void repaint() {
+        fixGuideGhosting();
+        if (!canvas.getWalkable().equals(cml.getWalkable()))
+            canvas.setWalkable(cml.getWalkable());
+
+        super.repaint();
+        if (player.isFinish()) {
+            player.setFinish(false);
+            cml.setFocused(false);
+            setLabel(++winCounterNumber);
+            reset();
+        }
+    }
+
+    private void setLabel(int value) {
+        winCounterNumber = value;
+        winCounterLabel.setText(winCounterString + winCounterNumber);
+    }
+
+    public void reset() {
+        maze.reset();
+        maze.generateMaze();
+        player.setX(maze.getPlayerPos()[0]);
+        player.setY(maze.getPlayerPos()[1]);
+        repaint();
+    }
+
+    private void fixGuideGhosting() {
+        cml.setMousePointer(new Point(player.getPX(), player.getPY()));
+        canvas.setGuidePoint(cml.getMousePointer());
+    }
+
+    //initializers
+    private void initWindow() {
         Container cp = getContentPane();
         cp.setLayout(new GridBagLayout());
 
@@ -53,51 +93,54 @@ public class Window extends JFrame {
 
         cp.add(controlPanel, gc);
 
+        //Guide
+        gc.gridx = 2;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.PAGE_END;
+        cp.add(guidePanel, gc);
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
         this.pack();
         this.setVisible(true);
     }
 
-    @Override
-    public void repaint()
-    {
-        fix();
-        super.repaint();
-        if (player.isFinish()) {
-            player.setFinish(false);
-            winCounter++;
-            labelWin.setText(winCounterLabel + winCounter);
-            reset();
-        }
-    }
+    private void initGuide() {
+        guidePanel = new JPanel(new FlowLayout());
+        guidePanel.setBorder(BorderFactory.createTitledBorder("How to play"));
 
-    public void reset() {
-        maze.reset();
-        maze.generateMaze();
-        player.setX(maze.getPlayerPos()[0]);
-        player.setY(maze.getPlayerPos()[1]);
-        fix();
-        repaint();
+        JLabel textField = new JLabel();
+        textField.setText(
+                "<html>Movement:<br>" +
+                        "- Keyboard W/A/S/D or Arrow Keys,<br>" +
+                        "- Use buttons on side,<br>" +
+                        "- Click on the player to use mouse.<br>" +
+                        "<br>" +
+                        "Press Reset to start again.</html>"
+        );
+
+        guidePanel.add(textField);
     }
 
     private void initCanvas() {
-        canvas = new MazePanel(maze, player);
+        canvas = new MazePanel(this);
+
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         canvas.setFocusable(true);
-        canvas.addKeyListener(new PlayerInput(this));
 
         cml = new CustomMouseListener(this);
 
+        canvas.addKeyListener(new PlayerInput(this));
         canvas.addMouseMotionListener(cml);
         canvas.addMouseListener(cml);
     }
 
-    public void initControlPanel() {
+    private void initControlPanel() {
         controlPanel = new JPanel(new GridBagLayout());
 
-        labelWin = new JLabel(winCounterLabel + winCounter);
+        winCounterLabel = new JLabel(winCounterString + winCounterNumber);
 
         JButton buttonUp = new JButton("UP");
         JButton buttonRight = new JButton("RIGHT");
@@ -105,8 +148,7 @@ public class Window extends JFrame {
         JButton buttonLeft = new JButton("LEFT");
         JButton buttonReset = new JButton("RESET");
 
-        labelWin.setFocusable(false);
-
+        winCounterLabel.setFocusable(false);
         buttonUp.setFocusable(false);
         buttonRight.setFocusable(false);
         buttonDown.setFocusable(false);
@@ -114,8 +156,7 @@ public class Window extends JFrame {
         buttonReset.setFocusable(false);
 
         buttonReset.addActionListener(ae -> {
-            winCounter = 0;
-            labelWin.setText(winCounterLabel + winCounter);
+            setLabel(0);
             reset();
         });
 
@@ -146,7 +187,7 @@ public class Window extends JFrame {
         gc.gridx = 0;
         gc.gridy = 0;
         gc.gridwidth = 2;
-        controlPanel.add(labelWin, gc);
+        controlPanel.add(winCounterLabel, gc);
 
         gc.gridwidth = 1;
 
@@ -171,11 +212,7 @@ public class Window extends JFrame {
         controlPanel.add(buttonRight, gc);
     }
 
-    public void fix() {
-        cml.setMousePointer(new Point(player.getPX(), player.getPY()));
-        canvas.setGuidePoint(cml.getMousePointer());
-    }
-
+    //Getters
     public Player getPlayer() {
         return player;
     }
@@ -190,10 +227,6 @@ public class Window extends JFrame {
 
     public CustomMouseListener getCml() {
         return cml;
-    }
-
-    public void setCml(CustomMouseListener cml) {
-        this.cml = cml;
     }
 }
 

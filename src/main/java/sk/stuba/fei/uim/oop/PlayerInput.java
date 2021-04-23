@@ -5,8 +5,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class PlayerInput extends KeyAdapter {
-    private Window window;
-    private Player player;
+    private final Window window;
+    private final Player player;
 
     public PlayerInput(Window window) {
         this.window = window;

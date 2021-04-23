@@ -4,33 +4,31 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomMouseListener implements MouseMotionListener, MouseListener {
 
+    public boolean isFocused;
     private Point mousePointer;
-    private int step;
-    private List<Cell> grid;
-    private Player player;
-    private MazePanel canvas;
-    private Window window;
+
+    private final int step;
+    private final List<Cell> grid;
+    private final Player player;
+    private final MazePanel canvas;
+    private final Window window;
+    private final List<Point> walkable;
 
     public CustomMouseListener(Window window) {
         this.mousePointer = new Point();
-        this.step = Window.CANVAS_WIDTH / Cell.CELL_SIZE;
+        this.step = Window.CANVAS_WIDTH / Cell.CELL_COUNT;
         this.window = window;
+        this.isFocused = false;
+        this.walkable = new ArrayList<>();
 
         grid = this.window.getMaze().getGrid();
         player = this.window.getPlayer();
         canvas = this.window.getCanvas();
-    }
-
-    public Point getMousePointer() {
-        return mousePointer;
-    }
-
-    public void setMousePointer(Point mousePointer) {
-        this.mousePointer = mousePointer;
     }
 
     @Override
@@ -75,19 +73,27 @@ public class CustomMouseListener implements MouseMotionListener, MouseListener {
 
     @Override
     public void mouseReleased(MouseEvent mouseEvent) {
-        player.setX(mousePointer.x);
-        player.setY(mousePointer.y);
-        player.checkFinish();
-        if(player.isFinish()){
-            window.repaint();
-            mousePointer.x = player.getPX();
-            mousePointer.y = player.getPY();
+        if (mousePointer.x == player.getPX() && mousePointer.y == player.getPY()) {
+            isFocused = !isFocused;
+            walkable.clear();
+        }
+        if (isFocused) {
+            player.setX(mousePointer.x);
+            player.setY(mousePointer.y);
+            player.checkFinish();
+            if (player.isFinish()) {
+                window.repaint();
+                mousePointer.x = player.getPX();
+                mousePointer.y = player.getPY();
+            }
+            update();
         }
         window.repaint();
     }
 
+    //Support Methods
     private int getPos(int x, int y) {
-        return y * Cell.CELL_SIZE + x;
+        return y * Cell.CELL_COUNT + x;
     }
 
     private Direction getDirection(Point mouse, int x, int y) {
@@ -98,6 +104,59 @@ public class CustomMouseListener implements MouseMotionListener, MouseListener {
         return Direction.Up;
     }
 
+    private boolean isPathBlocked(int x, int y, Direction direction) {
+        if (player.getPX() != x || player.getPY() != y)
+            walkable.add(new Point(x, y));
+
+        return grid.get(getPos(x, y)).getWall(direction);
+    }
+
+    private void update() {
+        var px = player.getPX();
+        var py = player.getPY();
+
+        walkable.clear();
+
+        for (var left = px; left >= 0; left--)
+            if (isPathBlocked(left, py, Direction.Left))
+                break;
+
+        for (var right = px; right < Cell.CELL_COUNT; right++)
+            if (isPathBlocked(right, py, Direction.Right))
+                break;
+
+        for (var up = py; up >= 0; up--)
+            if (isPathBlocked(px, up, Direction.Up))
+                break;
+
+        for (var down = py; down < Cell.CELL_COUNT; down++)
+            if (isPathBlocked(px, down, Direction.Down))
+                break;
+
+    }
+
+    //Getters & Setters
+    public Point getMousePointer() {
+        return mousePointer;
+    }
+
+    public void setMousePointer(Point mousePointer) {
+        this.mousePointer = mousePointer;
+    }
+
+    public boolean isFocused() {
+        return isFocused;
+    }
+
+    public void setFocused(boolean focused) {
+        isFocused = focused;
+    }
+
+    public List<Point> getWalkable() {
+        return walkable;
+    }
+
+    //Unused
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
 
