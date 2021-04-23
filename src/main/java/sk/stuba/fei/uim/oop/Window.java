@@ -2,6 +2,7 @@ package sk.stuba.fei.uim.oop;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Window extends JFrame {
     public static final int CANVAS_WIDTH = 600;
@@ -49,6 +50,7 @@ public class Window extends JFrame {
             player.setFinish(false);
             cml.setFocused(false);
             setLabel(++winCounterNumber);
+            canvas.setWalkable(new ArrayList<>());
             reset();
         }
     }

@@ -29,17 +29,19 @@ public class MazePanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponents(g);
-
-        paintMaze(g);
-
-        painFinish(g);
-        paintPlayer(g);
+        g.setColor(Color.white);
+        g.fillRect(0,0,Window.CANVAS_WIDTH, Window.CANVAS_HEIGHT);
+        g.setColor(Color.black);
 
         paintWalkable(g);
+        paintMaze(g);
 
         if ((guidePoint.x != player.getPX() || guidePoint.y != player.getPY()) && window.getCml().isFocused()) {
             paintGuide(g);
         }
+
+        painFinish(g);
+        paintPlayer(g);
     }
 
     //Painters
@@ -48,11 +50,15 @@ public class MazePanel extends JPanel {
         g.setColor(Color.red);
         g.fillRect(guidePoint.x * step + 1, guidePoint.y * step + 1, step - 2, step - 2);
     }
+
     private void paintWalkable(Graphics g) {
+        if(walkable.isEmpty())
+            return;
+
         g.setColor(Color.pink);
         for (var cell : walkable) {
             if (cell.x != player.getPX() || cell.y != player.getPY())
-                g.fillRect(cell.x * step + 1, cell.y * step + 1, step - 2, step - 2);
+                g.fillRect(cell.x * step, cell.y * step, step, step);
         }
     }
 
@@ -100,8 +106,6 @@ public class MazePanel extends JPanel {
         var i = cell.getX() * step;
         var j = cell.getY() * step;
 
-        g.setColor(Color.white);
-        g.fillRect(i, j, step, step);
         g.setColor(Color.black);
         if (cell.getWall(Direction.Up)) g.drawLine(i, j, i + step, j);
         if (cell.getWall(Direction.Right)) g.drawLine(i + step, j, i + step, j + step);

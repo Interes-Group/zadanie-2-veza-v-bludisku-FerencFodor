@@ -77,16 +77,18 @@ public class CustomMouseListener implements MouseMotionListener, MouseListener {
             isFocused = !isFocused;
             walkable.clear();
         }
+
         if (isFocused) {
             player.setX(mousePointer.x);
             player.setY(mousePointer.y);
+            update();
             player.checkFinish();
             if (player.isFinish()) {
                 window.repaint();
                 mousePointer.x = player.getPX();
                 mousePointer.y = player.getPY();
+                walkable.clear();
             }
-            update();
         }
         window.repaint();
     }
